@@ -141,17 +141,16 @@ class Algorithm extends HTMLElement {
     }
 
     renderBars(update = false) {
-        (update ? this.querySelector(".bars") : this).innerHTML = `
-            <div class="bars">
-                ${this.randomInts.reduce(
-                    (html, int) => `
-                    ${html}
-                    <div class="bar" data-value="${int}"></div>
-                `,
-                    ""
-                )}
-            </div>
-        `;
+        const barsHTML = this.randomInts.reduce(
+            (html, int) => `
+            ${html}
+            <div class="bar" data-value="${int}"></div>
+        `,
+            ""
+        );
+
+        if (update) this.querySelector(".bars").innerHTML = barsHTML;
+        else this.innerHTML = `<div class="bars">${barsHTML}</div>`;
     }
 
     renderControls() {
