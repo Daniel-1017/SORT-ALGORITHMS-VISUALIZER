@@ -88,9 +88,9 @@ class Algorithm extends HTMLElement {
     minInt = 5;
     maxInt = 1000;
 
-    pause = false;
+    pause = true;
 
-    barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || Math.floor(this.maxBars));
+    barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || this.maxBars);
     randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
 
     algorithm = window.algorithms[this.dataset.algorithm] || window.algorithms.BubbleSort;
@@ -168,7 +168,11 @@ class Algorithm extends HTMLElement {
     }
 
     async onStartAlgorithm() {
+        this.pause = false;
+
         this.controlEls.pause.style.display = "inline-block";
+        this.controlEls.start.style.display = "none";
+        this.controlEls.input.style.display = "none";
 
         const generator = (this.algorithm || BubbleSort).sort(this.randomInts);
         if (!this.algorithm) {
@@ -178,7 +182,7 @@ class Algorithm extends HTMLElement {
         let result = generator.next();
 
         while (!result.done) {
-            if (this.pause) await this.pauseAlgorithm(); // Wait for the algorithm to be resumed
+            if (this.pause) await this.playPauseAlgorithm(); // Wait for the algorithm to be resumed
 
             await this.animateBars(result.value);
 
@@ -186,6 +190,8 @@ class Algorithm extends HTMLElement {
 
             if (result.done) {
                 this.controlEls.pause.style.display = "none";
+                this.controlEls.input.style.display = "inline-block";
+                this.controlEls.start.style.display = "inline-block";
             }
         }
     }
@@ -194,17 +200,25 @@ class Algorithm extends HTMLElement {
         this.pause = !this.pause;
 
         if (!this.pause) {
-            // RESUME_ALGORITHM is actually the resolve function of the promise returned by pauseAlgorithm
-            this?.RESUME_ALGORITHM(); // Resume the algorithm
-            this.resolve = null;
+            this.playPauseAlgorithm(true); // Resume the algorithm
 
             evt.currentTarget.textContent = "PAUSE";
         } else evt.currentTarget.textContent = "RESUME";
     }
 
-    pauseAlgorithm() {
-        // Await a never resolving promise to pause the algorithm and saving the resolve function which is resolved in the onPauseAlgorithm method
-        return new Promise(resolve => (this.RESUME_ALGORITHM = resolve));
+    // This function will be called when the algorithm is paused or resumed
+    // It will return a promise that will resolve when the algorithm is resumed
+    playPauseAlgorithm(play = false) {
+        // RESUME_ALGORITHM is actually the resolve function of the promise returned by pauseAlgorithm
+        if (play) {
+            if (this.RESUME_ALGORITHM) {
+                this.RESUME_ALGORITHM();
+                this.RESUME_ALGORITHM = null;
+            } else console.warn("RESUME_ALGORITHM is not defined. Algorithm is already running.");
+        } else {
+            // Await a never resolving promise to pause the algorithm and saving the resolve function
+            return new Promise(resolve => (this.RESUME_ALGORITHM = resolve));
+        }
     }
 
     async animateBars(arr) {
