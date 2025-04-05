@@ -88,10 +88,14 @@ class Algorithm extends HTMLElement {
     minInt = 5;
     maxInt = 1000;
 
+    pause = false;
+
     barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || Math.floor(this.maxBars));
     randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
 
     algorithm = window.algorithms[this.dataset.algorithm] || window.algorithms.BubbleSort;
+
+    controlEls = {};
 
     constructor() {
         super();
@@ -111,10 +115,18 @@ class Algorithm extends HTMLElement {
         // Render controls
         this.renderControls();
 
+        // Store control elements in an object for easy access
+        this.controlEls = {
+            start: this.querySelector("[data-start-algorithm]"),
+            pause: this.querySelector("[data-pause-algorithm]"),
+            input: this.querySelector("[data-bars-count-input]"),
+        };
+
         // Event listeners
         this.addEventListener("tab-change", this.onTabChange);
-        this.querySelector("[data-start-algorithm]").addEventListener("click", this.onStartAlgorithm.bind(this));
-        this.querySelector("[data-bars-count-input]").addEventListener("input", window.Utils.debounce(this.onBarsCountChange.bind(this), 200));
+        this.controlEls.start.addEventListener("click", this.onStartAlgorithm.bind(this));
+        this.controlEls.pause.addEventListener("click", this.onPauseAlgorithm.bind(this));
+        this.controlEls.input.addEventListener("input", window.Utils.debounce(this.onBarsCountChange.bind(this), 200));
     }
 
     onTabChange = () => {
@@ -148,6 +160,7 @@ class Algorithm extends HTMLElement {
             `
             <div class="controls">
                 <button data-start-algorithm>START</button>
+                <button data-pause-algorithm style="display: none;">PAUSE</button>
                 <input type="number" placeholder="Bars count" value="${this.barsCount}" data-bars-count-input style="width: 150px;" min="${this.minBars}" max="${this.maxBars}" />
             </div>
         `
@@ -155,6 +168,8 @@ class Algorithm extends HTMLElement {
     }
 
     async onStartAlgorithm() {
+        this.controlEls.pause.style.display = "inline-block";
+
         const generator = (this.algorithm || BubbleSort).sort(this.randomInts);
         if (!this.algorithm) {
             console.error("Algorithm not defined. BubbleSort will be used as default.");
@@ -163,10 +178,33 @@ class Algorithm extends HTMLElement {
         let result = generator.next();
 
         while (!result.done) {
+            if (this.pause) await this.pauseAlgorithm(); // Wait for the algorithm to be resumed
+
             await this.animateBars(result.value);
 
             result = generator.next(); // Continue to the next iteration
+
+            if (result.done) {
+                this.controlEls.pause.style.display = "none";
+            }
         }
+    }
+
+    onPauseAlgorithm(evt) {
+        this.pause = !this.pause;
+
+        if (!this.pause) {
+            // RESUME_ALGORITHM is actually the resolve function of the promise returned by pauseAlgorithm
+            this?.RESUME_ALGORITHM(); // Resume the algorithm
+            this.resolve = null;
+
+            evt.currentTarget.textContent = "PAUSE";
+        } else evt.currentTarget.textContent = "RESUME";
+    }
+
+    pauseAlgorithm() {
+        // Await a never resolving promise to pause the algorithm and saving the resolve function which is resolved in the onPauseAlgorithm method
+        return new Promise(resolve => (this.RESUME_ALGORITHM = resolve));
     }
 
     async animateBars(arr) {
