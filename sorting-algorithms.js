@@ -210,3 +210,14 @@ class ShellSort {
         return arr;
     }
 }
+
+window.algorithms = {
+    BubbleSort,
+    SelectionSort,
+    InsertionSort,
+    RadixSort,
+    HeapSort,
+    QuickSort,
+    MergeSort,
+    ShellSort,
+};

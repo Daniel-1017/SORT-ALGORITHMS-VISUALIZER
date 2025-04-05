@@ -91,6 +91,8 @@ class Algorithm extends HTMLElement {
     barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || Math.floor(this.maxBars));
     randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
 
+    algorithm = window.algorithms[this.dataset.algorithm] || window.algorithms.BubbleSort;
+
     constructor() {
         super();
         this.renderBars();
@@ -167,76 +169,5 @@ class Algorithm extends HTMLElement {
     }
 }
 
-class BubbleSortEl extends Algorithm {
-    algorithm = BubbleSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class SelectionSortEl extends Algorithm {
-    algorithm = SelectionSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class InsertionSortEl extends Algorithm {
-    algorithm = InsertionSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class MergeSortEl extends Algorithm {
-    algorithm = MergeSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class QuickSortEl extends Algorithm {
-    algorithm = QuickSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class HeapSortEl extends Algorithm {
-    algorithm = HeapSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class RadixSortEl extends Algorithm {
-    algorithm = RadixSort;
-
-    constructor() {
-        super();
-    }
-}
-
-class ShellSortEl extends Algorithm {
-    algorithm = ShellSort;
-
-    constructor() {
-        super();
-    }
-}
-
 customElements.define("tabs-component", Tabs);
-customElements.define("bubble-sort", BubbleSortEl);
-customElements.define("selection-sort", SelectionSortEl);
-customElements.define("insertion-sort", InsertionSortEl);
-customElements.define("merge-sort", MergeSortEl);
-customElements.define("quick-sort", QuickSortEl);
-customElements.define("heap-sort", HeapSortEl);
-customElements.define("radix-sort", RadixSortEl);
-customElements.define("shell-sort", ShellSortEl);
+customElements.define("sorting-algorithm", Algorithm);
