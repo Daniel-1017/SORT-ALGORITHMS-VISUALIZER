@@ -173,10 +173,7 @@ class Algorithm extends HTMLElement {
         this.controlEls.start.style.display = "none";
         this.controlEls.input.style.display = "none";
 
-        const generator = (this.algorithm || BubbleSort).sort(this.randomInts);
-        if (!this.algorithm) {
-            console.error("Algorithm not defined. BubbleSort will be used as default.");
-        }
+        const generator = this.algorithm.sort(this.randomInts);
 
         let result = generator.next();
 
