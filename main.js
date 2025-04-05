@@ -205,7 +205,7 @@ class Algorithm extends HTMLElement {
     // This function will be called when the algorithm is paused or resumed
     // It will return a promise that will resolve when the algorithm is resumed
     playPauseAlgorithm(play = false) {
-        // RESUME_ALGORITHM is actually the resolve function of the promise returned by pauseAlgorithm
+        // RESUME_ALGORITHM is actually the resolve function of the promise returned by playPauseAlgorithm if play === false
         if (play) {
             if (this.RESUME_ALGORITHM) {
                 this.RESUME_ALGORITHM();
