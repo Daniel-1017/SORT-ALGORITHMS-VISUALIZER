@@ -96,15 +96,23 @@ class Algorithm extends HTMLElement {
     constructor() {
         super();
 
+        // Display error message if algorithm is not found
+        if (!window.algorithms[this.dataset.algorithm]) {
+            console.error(`Algorithm ${this.dataset.algorithm} not found. BubbleSort will be used as default.`);
+            console.log("Available algorithms", window.algorithms);
+        }
+
+        // If tab is active, render bars and animate them otherwise just render them
         if (this.closest(".tab-content").classList.contains("active")) {
             this.renderBars();
             this.animateBars(this.randomInts);
         } else this.renderBars();
 
+        // Render controls
         this.renderControls();
 
+        // Event listeners
         this.addEventListener("tab-change", this.onTabChange);
-
         this.querySelector("[data-start-algorithm]").addEventListener("click", this.onStartAlgorithm.bind(this));
         this.querySelector("[data-bars-count-input]").addEventListener("input", window.Utils.debounce(this.onBarsCountChange.bind(this), 200));
     }
