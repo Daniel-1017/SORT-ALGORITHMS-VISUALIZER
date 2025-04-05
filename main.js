@@ -51,7 +51,7 @@ class Tabs extends HTMLElement {
         this.querySelector(".tab-content.active").classList.remove("active");
         tab.classList.add("active");
 
-        this.dispatchEvent(new CustomEvent("tab-change", { detail: { index } }));
+        tab.querySelector("sorting-algorithm").dispatchEvent(new Event("tab-change"));
     }
 
     renderStructure() {
@@ -95,13 +95,26 @@ class Algorithm extends HTMLElement {
 
     constructor() {
         super();
-        this.renderBars();
-        this.animateBars(this.randomInts);
+
+        if (this.closest(".tab-content").classList.contains("active")) {
+            this.renderBars();
+            this.animateBars(this.randomInts);
+        } else this.renderBars();
+
         this.renderControls();
+
+        this.addEventListener("tab-change", this.onTabChange);
 
         this.querySelector("[data-start-algorithm]").addEventListener("click", this.onStartAlgorithm.bind(this));
         this.querySelector("[data-bars-count-input]").addEventListener("input", window.Utils.debounce(this.onBarsCountChange.bind(this), 200));
     }
+
+    onTabChange = () => {
+        if (this.closest(".tab-content").classList.contains("active")) {
+            this.animateBars(this.randomInts);
+            this.removeEventListener("tab-change", this.onTabChange);
+        }
+    };
 
     setBarsCount(count) {
         return Math.max(this.minBars, Math.min(this.maxBars, count));
