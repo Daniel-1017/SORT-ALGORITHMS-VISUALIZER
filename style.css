@@ -60,10 +60,17 @@ tabs-component .tab-content:not(.active) {
     --height: 50px;
 
     flex: 1;
-    padding: 0.25rem;
     height: var(--height);
     border: 1px solid #000;
     transition: height 0.5s ease-in-out;
+
+    position: relative;
+}
+
+.sorting-algorithm .bar::before {
+    content: attr(data-value);
+    position: absolute;
+    transform: translateY(-100%);
 }
 
 .sorting-algorithm .controls {

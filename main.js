@@ -1,3 +1,5 @@
+const BARS_ANIMATION_DELAY = 100; // milliseconds
+
 window.Utils = class {
     static randomInt(min = 0, max = Number.MAX_SAFE_INTEGER) {
         return Math.floor(Math.random() * (max - min) + min);
@@ -10,6 +12,21 @@ window.Utils = class {
     static wait(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    static debounce = (fn, delay) => {
+        let timeoutId;
+
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                fn(...args);
+            }, delay);
+        };
+    };
+
+    static normalize = (value, min, max) => {
+        return ((value - min) / (max - min)) * 100;
+    };
 };
 
 class Tabs extends HTMLElement {
@@ -65,35 +82,53 @@ class Tabs extends HTMLElement {
 }
 
 class Algorithm extends HTMLElement {
-    barsCount = this.dataset.barsCount ?? 50;
-    randomInts = window.Utils.randomIntArray(this.barsCount, 5, 101);
+    minBars = 5;
+    maxBars = 50;
+
+    minInt = 5;
+    maxInt = 1000;
+
+    barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || Math.floor(this.maxBars));
+    randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
 
     constructor() {
         super();
         this.renderBars();
         this.animateBars(this.randomInts);
+        this.renderControls();
 
         this.querySelector("[data-start-algorithm]").addEventListener("click", this.onStartAlgorithm.bind(this));
+        this.querySelector("[data-bars-count-input]").addEventListener("input", window.Utils.debounce(this.onBarsCountChange.bind(this), 200));
     }
 
-    renderBars() {
-        this.innerHTML = `
+    setBarsCount(count) {
+        return Math.max(this.minBars, Math.min(this.maxBars, count));
+    }
+
+    renderBars(update = false) {
+        (update ? this.querySelector(".bars") : this).innerHTML = `
             <div class="bars">
                 ${this.randomInts.reduce(
                     (html, int) => `
                     ${html}
-                    <div class="bar">${int}</div>
+                    <div class="bar" data-value="${int}"></div>
                 `,
                     ""
                 )}
             </div>
+        `;
+    }
+
+    renderControls() {
+        this.insertAdjacentHTML(
+            "beforeend",
+            `
             <div class="controls">
                 <button data-start-algorithm>START</button>
-                <input type="number" placeholder="Bars count" />
+                <input type="number" placeholder="Bars count" value="${this.barsCount}" data-bars-count-input style="width: 150px;" min="${this.minBars}" max="${this.maxBars}" />
             </div>
-        `;
-
-        // ! TODO: Add event listener to input to change the number of bars
+        `
+        );
     }
 
     async onStartAlgorithm() {
@@ -116,9 +151,19 @@ class Algorithm extends HTMLElement {
 
         const bars = this.querySelectorAll(".bar");
         for (let i = 0; i < arr.length; i++) {
-            bars[i].style.setProperty("--height", `${arr[i]}%`);
-            bars[i].textContent = arr[i];
+            bars[i].style.setProperty("--height", `${window.Utils.normalize(arr[i], this.minInt, this.maxInt)}%`);
+            bars[i].setAttribute("data-value", arr[i]);
         }
+    }
+
+    onBarsCountChange(evt) {
+        this.barsCount = this.setBarsCount(parseInt(evt.target.value) || this.maxBars);
+        this.randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
+
+        evt.target.value = this.barsCount;
+
+        this.renderBars(true);
+        this.animateBars(this.randomInts);
     }
 }
 
@@ -178,6 +223,14 @@ class RadixSortEl extends Algorithm {
     }
 }
 
+class ShellSortEl extends Algorithm {
+    algorithm = ShellSort;
+
+    constructor() {
+        super();
+    }
+}
+
 customElements.define("tabs-component", Tabs);
 customElements.define("bubble-sort", BubbleSortEl);
 customElements.define("selection-sort", SelectionSortEl);
@@ -186,3 +239,4 @@ customElements.define("merge-sort", MergeSortEl);
 customElements.define("quick-sort", QuickSortEl);
 customElements.define("heap-sort", HeapSortEl);
 customElements.define("radix-sort", RadixSortEl);
+customElements.define("shell-sort", ShellSortEl);
