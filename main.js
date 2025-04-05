@@ -90,7 +90,7 @@ class Algorithm extends HTMLElement {
 
     pause = true;
 
-    barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || this.maxBars);
+    barsCount = this.setBarsCount(parseInt(this.dataset.barsCount) || Math.floor(this.maxBars / 2));
     randomInts = window.Utils.randomIntArray(this.barsCount, this.minInt, this.maxInt);
 
     algorithm = window.algorithms[this.dataset.algorithm] || window.algorithms.BubbleSort;
