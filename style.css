@@ -1,0 +1,71 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* Tab Component */
+tabs-component .tabs-header {
+    display: flex;
+}
+
+tabs-component .tab-item {
+    flex: 1;
+    font-size: 2rem;
+    text-align: center;
+
+    border-bottom: 1px solid #8d99ae;
+    padding: 2rem 1rem;
+    cursor: pointer;
+}
+
+tabs-component .tab-item.active {
+    border: 1px solid #8d99ae;
+    background-color: #edf2f4;
+}
+
+tabs-component .tab-content {
+    padding-top: 3rem;
+}
+
+tabs-component .tab-content:not(.active) {
+    display: none;
+}
+
+/* End of Tab Component */
+
+.sorting-algorithm .bars {
+    width: 100%;
+    height: 500px;
+
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.sorting-algorithm .bar {
+    --height: 50px;
+
+    flex: 1;
+    padding: 0.25rem;
+    height: var(--height);
+    border: 1px solid #000;
+    transition: height 0.5s ease-in-out;
+}
+
+.sorting-algorithm .controls {
+    padding-top: 2rem;
+}
