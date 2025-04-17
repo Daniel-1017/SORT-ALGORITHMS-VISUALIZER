@@ -54,6 +54,7 @@ class InsertionSort {
             while (j >= 0 && arr[j] > key) {
                 arr[j + 1] = arr[j];
                 j--;
+                yield arr;
             }
 
             arr[j + 1] = key;
@@ -95,7 +96,7 @@ class HeapSort {
     static *sort(arr) {
         const n = arr.length;
 
-        const heapify = (arr, n, i) => {
+        function* heapify(arr, n, i) {
             let largest = i;
             const left = 2 * i + 1;
             const right = 2 * i + 2;
@@ -105,21 +106,21 @@ class HeapSort {
 
             if (largest !== i) {
                 [arr[i], arr[largest]] = [arr[largest], arr[i]];
-                heapify(arr, n, largest);
+                yield [...arr];
+                yield* heapify(arr, n, largest);
             }
-        };
-
-        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-            heapify(arr, n, i);
-
-            yield arr;
         }
 
+        // Build max heap
+        for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+            yield* heapify(arr, n, i);
+        }
+
+        // Heap sort
         for (let i = n - 1; i > 0; i--) {
             [arr[0], arr[i]] = [arr[i], arr[0]];
-            heapify(arr, i, 0);
-
-            yield arr;
+            yield [...arr];
+            yield* heapify(arr, i, 0);
         }
 
         return arr;
@@ -155,13 +156,17 @@ class QuickSort {
 
 class MergeSort {
     static *sort(arr) {
-        if (arr.length <= 1) return arr;
+        if (arr.length <= 1) {
+            yield arr; // Visualize base case
+            return arr;
+        }
 
         const mid = Math.floor(arr.length / 2);
         const left = yield* MergeSort.sort(arr.slice(0, mid));
         const right = yield* MergeSort.sort(arr.slice(mid));
 
-        return yield* MergeSort.merge(left, right);
+        const merged = yield* MergeSort.merge(left, right);
+        return merged;
     }
 
     static *merge(left, right) {
@@ -175,12 +180,12 @@ class MergeSort {
             } else {
                 result.push(right[j++]);
             }
+            yield result.concat(left.slice(i)).concat(right.slice(j)); // Yield step by step
         }
 
-        const newArr = result.concat(left.slice(i)).concat(right.slice(j));
-        yield newArr;
-
-        return newArr;
+        const final = result.concat(left.slice(i)).concat(right.slice(j));
+        yield final; // Final merge of this level
+        return final;
     }
 }
 
