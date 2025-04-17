@@ -1,4 +1,4 @@
-const BARS_ANIMATION_DELAY = 100; // milliseconds
+const BARS_ANIMATION_DELAY = 25; // milliseconds
 
 window.Utils = class {
     static randomInt(min = 0, max = Number.MAX_SAFE_INTEGER) {

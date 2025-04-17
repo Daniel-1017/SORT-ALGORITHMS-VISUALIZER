@@ -62,7 +62,7 @@ tabs-component .tab-content:not(.active) {
     flex: 1;
     height: var(--height);
     border: 1px solid #000;
-    transition: height 0.5s ease-in-out;
+    transition: height 0.25s ease-in-out;
 
     position: relative;
 }
